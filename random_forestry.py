@@ -6,54 +6,47 @@ import seaborn as sn
 import pandas as pd
 
 
+# Read data from an Excel Spreadsheet including data on immunotherapy patients and the results of their treatment and
+# use it to classify a model that predicts the success rate for new patients
 def immunotherapy():
     df = pd.read_excel('Immunotherapy.xlsx')
 
-    X = df.drop('Result_of_Treatment', axis=1)
+    x = df.drop('Result_of_Treatment', axis=1)
     y = df.Result_of_Treatment
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    model = RandomForestClassifier(n_estimators=100)
-    model.fit(X_train, y_train)
-    y_predicted = model.predict(X_test)
+    train_test_display(x, y, "immunotherapy")
 
-    print("Accuracy on test data:", model.score(X_test, y_test))
-
-    cm = confusion_matrix(y_test, y_predicted)
-    plt.figure(figsize=(4, 2))
-    sn.heatmap(cm, annot=True)
-    plt.xlabel('Predicted')
-    plt.ylabel('Truth')
-    plt.show()
-
-
-def breastCancer():
+# Read data from a csv including data on breast cancer patients and the results of their treatment and
+# use it to classify a model that predicts the success rate for new patients
+def breast_cancer():
     df = pd.read_csv('breast-cancer-wisconsin.data')
-    print(df.values)
-    print(df.describe())
-    for label in df.columns:
-        plt.hist(df[label], color="Orange")
-        plt.xlabel(label)
-        plt.ylabel("Number of Occurrences")
-        plt.show()
-    X = df.drop(['Sample_code_number', 'Class'], axis=1)
-    print(X.values)
+
+    x = df.drop(['Sample_code_number', 'Class'], axis=1)
     y = df.Class
-    print(y.values)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    train_test_display(x, y, "breast cancer")
+
+
+# Given a data set, builds a random forest classification model to predict subsequent outcomes
+# Returns the trained model
+def train_test_display(x, y, data_title):
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
     model = RandomForestClassifier(n_estimators=100)
-    model.fit(X_train, y_train)
-    y_predicted = model.predict(X_test)
+    model.fit(x, y)
+    y_predicted = model.predict(x_test)
 
-    print("Accuracy on test data:", model.score(X_test, y_test))
+    print("Accuracy on " + data_title.lower(), " test data:", model.score(x_test, y_test))
 
     cm = confusion_matrix(y_test, y_predicted)
-    plt.figure(figsize=(4, 2))
+    plt.figure(figsize=(6, 3))
     sn.heatmap(cm, annot=True)
-    plt.xlabel('Predicted')
-    plt.ylabel('Truth')
+    plt.xlabel('Predicted Classification')
+    plt.ylabel('Actual Classification')
+    plt.title(data_title.title() + ' Classification Accuracy')
     plt.show()
+
+    return model
+
 
 immunotherapy()
-breastCancer()
+breast_cancer()
